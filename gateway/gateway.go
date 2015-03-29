@@ -2,6 +2,7 @@ package gateway
 
 import (
 	"fmt"
+	"github.com/alipay-sdk/dispatcher"
 	s "github.com/alipay-sdk/sign"
 	"io/ioutil"
 	"log"
@@ -37,5 +38,9 @@ func GatewayService(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// 验签成功
+	// 获得执行器
+	action, _ := dispatcher.Executor(values)
+	// 执行
+	result, _ := action.execute()
 
 }
