@@ -2,8 +2,9 @@ package gateway
 
 import (
 	"fmt"
-	"github.com/alipay-sdk/dispatcher"
-	s "github.com/alipay-sdk/sign"
+	"github.com/alipay/alipay-demo/constants"
+	"github.com/alipay/alipay-demo/dispatcher"
+	"github.com/alipay/alipay-sdk/api/signutils"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -31,7 +32,7 @@ func GatewayService(w http.ResponseWriter, r *http.Request) {
 	data := fmt.Sprintf("biz_content=%s&charset=%s&service=%s&sign_type=%s", content, charset, service, signType)
 
 	// 是否需要转编码
-	err = s.Verify(data, sign)
+	err = signutils.Verify(data, sign, constants.AliPubKey)
 	if err != nil {
 		log.Printf("verify wrong %s", err)
 		return

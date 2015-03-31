@@ -1,6 +1,7 @@
 package sign
 
 import (
+	"bytes"
 	"crypto"
 	"crypto/rand"
 	"crypto/rsa"
@@ -10,16 +11,13 @@ import (
 	"encoding/pem"
 	"errors"
 	"fmt"
-	"github.com/alipay-sdk/constants"
 	"log"
+	"sort"
 )
 
-var pubKey *rsa.PublicKey
-var privkey *rsa.PrivateKey
+func genPubKey(key string) (pubKey *rsa.PublicKey) {
 
-func init() {
-
-	block, _ := pem.Decode(constants.AliPubKey)
+	block, _ := pem.Decode([]byte(key))
 	if block == nil {
 		log.Fatal("parse PUBLIC KEY PEM error")
 	}
@@ -27,15 +25,19 @@ func init() {
 		log.Fatal("wrong key type" + block.Type)
 	}
 	pkix, err := x509.ParsePKIXPublicKey(block.Bytes)
-
+	if err != nil {
+		log.Fatal("unable to parse pxix key")
+	}
 	ok := false
+
 	if pubKey, ok = pkix.(*rsa.PublicKey); !ok {
 		log.Fatal("aliPubKey can not be parsed to rsa.PublicKey")
 	}
+	return
 }
 
 // Verfiy 验签函数
-func Verfiy(body, sign string) error {
+func Verfiy(body, sign, aliPubKey string) error {
 	//解base64
 	decoded, err := base64.StdEncoding.DecodeString(sign)
 
@@ -45,14 +47,30 @@ func Verfiy(body, sign string) error {
 	//hashed
 	h := sha1.New()
 	h.Write([]byte(body))
+
+	//to rsa.publickey
+	pubKey := genPubKey(aliPubKey)
 	//rsa验签
 	return rsa.VerifyPKCS1v15(pubKey, crypto.SHA1, h.Sum(nil), decoded)
 }
 
 // Sign 签名
-func Sign(content string) (string, error) {
+func RsaSign(content, cusPrivKey string) (string, error) {
+
+	//to rsa.privateKey
+	privKey := genPrivKeyFromPKSC8(cusPrivKey)
+	// TODO content 必须转编码
+	hashed := sha1.Sum([]byte(content))
+	signed, err := rsa.SignPKCS1v15(rand.Reader, privKey, crypto.SHA1, hashed[:])
+	if err != nil {
+		return "", err
+	}
+	return base64.StdEncoding.EncodeToString(signed), nil
+}
+
+func genPrivKeyFromPKSC8(pkcs8Key string) (privkey *rsa.PrivateKey) {
 	// 解base64
-	encodedKey, err := base64.StdEncoding.DecodeString(constants.CusPrivKey)
+	encodedKey, err := base64.StdEncoding.DecodeString(pkcs8Key)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -63,13 +81,7 @@ func Sign(content string) (string, error) {
 	if privkey, ok = pkcs8.(*rsa.PrivateKey); !ok {
 		log.Fatal(ok)
 	}
-	// TODO content 必须转编码
-	hashed := sha1.Sum([]byte(content))
-	signed, err := rsa.SignPKCS1v15(rand.Reader, privkey, crypto.SHA1, hashed[:])
-	if err != nil {
-		return nil, err
-	}
-	return base64.StdEncoding.EncodeToString(signed)
+	return
 }
 
 // EncryptAndSignResponse 统一对响应消息签名
@@ -81,7 +93,7 @@ func Sign(content string) (string, error) {
 // <sign>sign</sign>
 // <sign_type>RSA</sign_type>
 // </alipay>
-func EncryptAndSignResponse(content string, isEncrypt, isSign bool) (string, error) {
+func EncryptAndSignResponse(content, cusPrivKey string, isEncrypt, isSign bool) (string, error) {
 
 	builder := `<?xml version=1.0 encoding=GBK?>
 				<alipay>
@@ -97,14 +109,36 @@ func EncryptAndSignResponse(content string, isEncrypt, isSign bool) (string, err
 		fallthrough
 	case isSign == true:
 		// sign
-		sign, err := Sign(content)
+		sign, err := RsaSign(content, cusPrivKey)
 		if err != nil {
-			return nil, err
+			return "", err
 		}
 		builder = fmt.Sprintf(builder, content, sign)
 	default:
 		// 不加密 不签名
-		return nil, errors.New("params wrong")
+		return "", errors.New("params wrong")
 	}
 	return builder, nil
+}
+
+// PrepareContent 准备请求的报文
+// 按照字典排序
+func PrepareContent(dict map[string]string) string {
+
+	s := make([]string, 0, len(dict))
+	for k, _ := range dict {
+		s = append(s, k)
+	}
+	// 排序
+	sort.Strings(s)
+
+	var buf bytes.Buffer
+	for _, v := range s {
+		param := dict[v]
+		if buf.Len() > 0 {
+			buf.WriteByte('&')
+		}
+		buf.WriteString(v + "=" + param)
+	}
+	return buf.String()
 }
