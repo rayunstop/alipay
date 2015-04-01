@@ -3,6 +3,9 @@ package api
 import (
 	"encoding/json"
 	"github.com/alipay/alipay-sdk/api/constants"
+	"github.com/alipay/alipay-sdk/api/conver"
+	"github.com/alipay/alipay-sdk/api/request"
+	"github.com/alipay/alipay-sdk/api/response"
 	"github.com/alipay/alipay-sdk/api/sign"
 	"github.com/alipay/alipay-sdk/api/utils"
 	"io/ioutil"
@@ -11,40 +14,11 @@ import (
 	"net/url"
 )
 
-// AlipayRequest request接口
-type AlipayRequest interface {
-	// appId
-	GetAppId() string
-
-	// 字符集
-	GetCharSet() string
-
-	// 方法名称
-	GetApiMethod() string
-
-	// 签名类型
-	GetSignType() string
-
-	// 应用参数
-	// 包括biz_content、自定义的参数
-	GetTextParams() map[string]string
-
-	// 每一个request必须绑定一个response对象
-	GetResponse() *AlipayResponse
-}
-
-// AlipayResponse response接口
-type AlipayResponse interface {
-
-	// 判断是否成功
-	IsSuccess() bool
-}
-
 // AlipayClient 客户端接口
 type AlipayClient interface {
-	execute(request *AlipayRequest) (*AlipayResponse, error)
+	Execute(r *request.AlipayRequest) (*response.AlipayResponse, error)
 	// 使用token
-	executeWithToken(request *AlipayRequest, token string) (*AlipayResponse, error)
+	ExecuteWithToken(r *request.AlipayRequest, token string) (*response.AlipayResponse, error)
 }
 
 // DefaultAlipayClient 默认的client
@@ -59,16 +33,16 @@ type DefaultAlipayClient struct {
 }
 
 // 实现接口
-func (d *DefaultAlipayClient) execute(request *AlipayRequest) (*AlipayResponse, error) {
-	return d.executeWithToken(request, nil)
+func (d *DefaultAlipayClient) Execute(r *request.AlipayRequest) (*response.AlipayResponse, error) {
+	return d.executeWithToken(r, nil)
 }
 
 // 实现接口
-func (d *DefaultAlipayClient) executeWithToken(request *AlipayRequest, token string) (*AlipayResponse, error) {
+func (d *DefaultAlipayClient) ExecuteWithToken(r *request.AlipayRequest, token string) (*response.AlipayResponse, error) {
 	// 获取必须参数
 	must := make(map[string]string)
-	must[constants.AppId] = request.GetAppId()
-	must[constants.Method] = request.GetApiMethod()
+	must[constants.AppId] = r.GetAppId()
+	must[constants.Method] = r.GetApiMethod()
 	must[constants.SignType] = d.SignType
 
 	// 可选参数
@@ -93,8 +67,9 @@ func (d *DefaultAlipayClient) executeWithToken(request *AlipayRequest, token str
 		return nil, err
 	}
 	// 解析resp
-	resp := request.GetResponse()
-	json.Unmarshal(msg, resp)
+	params := make(map[string]interface{})
+	json.Unmarshal(msg, &params)
+	d.resultMapping(r.GetResponse(), params)
 
 	// 不成功
 	if !resp.IsSuccess() {
@@ -102,4 +77,9 @@ func (d *DefaultAlipayClient) executeWithToken(request *AlipayRequest, token str
 		log.Println("todo to show all error message")
 	}
 	return resp, nil
+}
+
+// resultMapping 将结果映射到response
+func (d *DefaultAlipayClient) resultMapping(r *response.AlipayResponse, params map[string]interface{}) {
+	// params[]
 }
