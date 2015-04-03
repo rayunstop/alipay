@@ -14,10 +14,10 @@ type AlipayResponse interface {
 // AlipayMobilePublicMessageCustomSendResponse
 // 与AlipayMobilePublicMessageCustomSendRequest关联
 type AlipayMobilePublicMessageCustomSendResponse struct {
-	Code    string `json:"code"`
-	Msg     string `json:"msg"`
-	SubCode string `json:"sub_code"`
-	SubMsg  string `json:"sub_msg"`
+	Code    string `align:"code"`
+	Msg     string `align:"msg"`
+	SubCode string `align:"sub_code"`
+	SubMsg  string `align:"sub_msg"`
 }
 
 func (r *AlipayMobilePublicMessageCustomSendResponse) IsSuccess() bool {

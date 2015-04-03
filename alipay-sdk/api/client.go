@@ -8,6 +8,7 @@ import (
 	"github.com/alipay/alipay-sdk/api/response"
 	"github.com/alipay/alipay-sdk/api/sign"
 	"github.com/alipay/alipay-sdk/api/utils"
+	"github.com/qiniu/iconv"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -39,6 +40,14 @@ func (d *DefaultAlipayClient) Execute(r *request.AlipayRequest) (*response.Alipa
 
 // 实现接口
 func (d *DefaultAlipayClient) ExecuteWithToken(r *request.AlipayRequest, token string) (*response.AlipayResponse, error) {
+
+	// convert utf-8 to gbk
+	cd, err := iconv.Open("utf-8", "gbk")
+	if err != nil {
+		return nil, err
+	}
+	defer cd.Close()
+
 	// 获取必须参数
 	must := make(map[string]string)
 	must[constants.AppId] = r.GetAppId()
@@ -55,10 +64,10 @@ func (d *DefaultAlipayClient) ExecuteWithToken(r *request.AlipayRequest, token s
 	signed, err := sign.RsaSign(content, d.PrivKey)
 	must[constants.Sign] = signed
 
-	// 生成查询URL
-	q := utils.BuildQuery(d.ServerURL, must)
+	// 编码查询参数
+	data := utils.BuildQuery(must)
 	// 请求
-	result, err := http.Post(q, "application/x-www-form-urlencoded", nil)
+	result, err := http.PostForm(d.ServerURL, data)
 	if err != nil {
 		return nil, err
 	}
@@ -81,5 +90,14 @@ func (d *DefaultAlipayClient) ExecuteWithToken(r *request.AlipayRequest, token s
 
 // resultMapping 将结果映射到response
 func (d *DefaultAlipayClient) resultMapping(r *response.AlipayResponse, params map[string]interface{}) {
-	// params[]
+
+	// 拿到除sign的另一个key的值
+	for k, v := range params {
+		if k != "sign" {
+			if value, ok := v.(map[string]interface{}); ok {
+				conver.Convertor.Conver(r, value)
+			}
+		}
+	}
+
 }

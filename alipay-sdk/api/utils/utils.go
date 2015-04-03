@@ -15,18 +15,19 @@ func KeySet(dict map[string]string) []string {
 }
 
 // BuildQuery 建立带参数URL
-func BuildQuery(serverURL string, dict map[string]string) string {
+func BuildQuery(dict map[string]string) url.Values {
 
-	u, err := url.Parse(serverURL)
-	if err != nil {
-		return ""
-	}
-	q := u.Query()
+	val := new(url.Values)
 	for k, v := range dict {
-		fmt.Println(k)
-		q.Set(k, v)
+		val.Set(k, v)
 	}
+	encode, err := url.ParseQuery(val.Encode())
+	return encode
+}
 
-	u.RawQuery = q.Encode()
-	return u.String()
+// PutAll 往map里放map
+func PutAll(dest, src map[string]string) {
+	for k, v := range src {
+		dest[k] = v
+	}
 }

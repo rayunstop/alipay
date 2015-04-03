@@ -135,10 +135,13 @@ func PrepareContent(dict map[string]string) string {
 	var buf bytes.Buffer
 	for _, v := range s {
 		param := dict[v]
-		if buf.Len() > 0 {
-			buf.WriteByte('&')
+		// 过滤掉空的key
+		if param != "" {
+			if buf.Len() > 0 {
+				buf.WriteByte('&')
+			}
+			buf.WriteString(v + "=" + param)
 		}
-		buf.WriteString(v + "=" + param)
 	}
 	return buf.String()
 }
