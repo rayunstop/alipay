@@ -15,14 +15,13 @@ func KeySet(dict map[string]string) []string {
 }
 
 // BuildQuery 建立带参数URL
-func BuildQuery(dict map[string]string) url.Values {
+func BuildQuery(dict map[string]string) (val url.Values) {
 
-	val := new(url.Values)
+	val = url.Values{}
 	for k, v := range dict {
 		val.Set(k, v)
 	}
-	encode, err := url.ParseQuery(val.Encode())
-	return encode
+	return val
 }
 
 // PutAll 往map里放map

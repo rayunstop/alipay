@@ -18,7 +18,7 @@ type AlipayRequest interface {
 	GetTextParams() map[string]string
 
 	// 每一个request必须绑定一个response对象
-	GetResponse() *response.AlipayResponse
+	GetResponse() response.AlipayResponse
 }
 
 // AlipayMobilePublicMessageCustomSendRequest
@@ -39,8 +39,8 @@ func (r *AlipayMobilePublicMessageCustomSendRequest) GetTextParams() map[string]
 	return params
 }
 
-func (r *AlipayMobilePublicMessageCustomSendRequest) GetResponse() *response.AlipayResponse {
-	return nil
+func (r *AlipayMobilePublicMessageCustomSendRequest) GetResponse() response.AlipayResponse {
+	return new(response.AlipayMobilePublicMessageCustomSendResponse)
 }
 
 func (r *AlipayMobilePublicMessageCustomSendRequest) GetApiVersion() string {

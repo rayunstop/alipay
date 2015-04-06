@@ -12,14 +12,15 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	"net/url"
+	"strings"
+	"time"
 )
 
 // AlipayClient 客户端接口
 type AlipayClient interface {
-	Execute(r *request.AlipayRequest) (*response.AlipayResponse, error)
+	Execute(r request.AlipayRequest) (response.AlipayResponse, error)
 	// 使用token
-	ExecuteWithToken(r *request.AlipayRequest, token string) (*response.AlipayResponse, error)
+	ExecuteWithToken(r request.AlipayRequest, token string) (response.AlipayResponse, error)
 }
 
 // DefaultAlipayClient 默认的client
@@ -34,12 +35,12 @@ type DefaultAlipayClient struct {
 }
 
 // 实现接口
-func (d *DefaultAlipayClient) Execute(r *request.AlipayRequest) (*response.AlipayResponse, error) {
-	return d.executeWithToken(r, nil)
+func (d *DefaultAlipayClient) Execute(r request.AlipayRequest) (response.AlipayResponse, error) {
+	return d.ExecuteWithToken(r, "")
 }
 
 // 实现接口
-func (d *DefaultAlipayClient) ExecuteWithToken(r *request.AlipayRequest, token string) (*response.AlipayResponse, error) {
+func (d *DefaultAlipayClient) ExecuteWithToken(r request.AlipayRequest, token string) (response.AlipayResponse, error) {
 
 	// convert utf-8 to gbk
 	cd, err := iconv.Open("utf-8", "gbk")
@@ -49,25 +50,26 @@ func (d *DefaultAlipayClient) ExecuteWithToken(r *request.AlipayRequest, token s
 	defer cd.Close()
 
 	// 获取必须参数
-	must := make(map[string]string)
-	must[constants.AppId] = r.GetAppId()
-	must[constants.Method] = r.GetApiMethod()
-	must[constants.SignType] = d.SignType
-
+	rp := make(map[string]string)
+	rp[constants.AppId] = d.AppId
+	rp[constants.Method] = r.GetApiMethod()
+	rp[constants.SignType] = d.SignType
+	rp[constants.Timestamp] = time.Now().Format("2006-01-02 15:03:04")
+	rp[constants.Version] = r.GetApiVersion()
+	utils.PutAll(rp, r.GetTextParams())
 	// 可选参数
-	opt := make(map[string]string)
-	opt[constants.Format] = d.Format
+	// rp[constants.Format] = d.Format
 
 	// 请求报文
-	content := sign.PrepareContent(must)
+	content := sign.PrepareContent(rp)
 	// 签名
 	signed, err := sign.RsaSign(content, d.PrivKey)
-	must[constants.Sign] = signed
+	rp[constants.Sign] = signed
 
 	// 编码查询参数
-	data := utils.BuildQuery(must)
+	values := utils.BuildQuery(rp)
 	// 请求
-	result, err := http.PostForm(d.ServerURL, data)
+	result, err := http.Post(d.ServerURL, "application/x-www-form-urlencoded;charset=utf-8", strings.NewReader(values.Encode()))
 	if err != nil {
 		return nil, err
 	}
@@ -78,7 +80,8 @@ func (d *DefaultAlipayClient) ExecuteWithToken(r *request.AlipayRequest, token s
 	// 解析resp
 	params := make(map[string]interface{})
 	json.Unmarshal(msg, &params)
-	d.resultMapping(r.GetResponse(), params)
+	resp := r.GetResponse()
+	d.resultMapping(resp, params)
 
 	// 不成功
 	if !resp.IsSuccess() {
@@ -89,8 +92,9 @@ func (d *DefaultAlipayClient) ExecuteWithToken(r *request.AlipayRequest, token s
 }
 
 // resultMapping 将结果映射到response
-func (d *DefaultAlipayClient) resultMapping(r *response.AlipayResponse, params map[string]interface{}) {
+func (d *DefaultAlipayClient) resultMapping(r response.AlipayResponse, params map[string]interface{}) {
 
+	log.Printf("alipay return : %+v", params)
 	// 拿到除sign的另一个key的值
 	for k, v := range params {
 		if k != "sign" {

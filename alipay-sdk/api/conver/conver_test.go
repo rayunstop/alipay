@@ -21,7 +21,7 @@ type Addr struct {
 	Home string `align:"home"`
 }
 
-var rsp = `{"age":"18","name":"test","msg":{"time":"20150331","address":{"home":"hello world"}}}`
+var rsp = `{"age":1800,"name":"test","msg":{"time":"20150331","address":{"home":"hello world"}}}`
 
 func TestConver(t *testing.T) {
 

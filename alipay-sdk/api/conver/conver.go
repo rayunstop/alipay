@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"reflect"
 	"runtime"
+	"strconv"
 )
 
 var Convertor Converter
@@ -68,10 +69,14 @@ func (c *Converter) inject(v reflect.Value, params map[string]interface{}) (err 
 
 		switch f.Kind() {
 		case reflect.String:
-
 			if str, ok := value.(string); ok {
 				// log.Println(f.Kind(), value)
 				f.SetString(str)
+			}
+			// if value is float64,just convet it to string
+			if float, ok := value.(float64); ok {
+				// or fmt.Sprintf("%.0f", float)
+				f.SetString(strconv.FormatFloat(float, 'f', -1, 64))
 			}
 		case reflect.Struct:
 			// 如果是struct，直接进行递归
