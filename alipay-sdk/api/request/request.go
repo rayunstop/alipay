@@ -35,7 +35,7 @@ func (r *AlipayMobilePublicMessageCustomSendRequest) GetTextParams() map[string]
 	params := make(map[string]string)
 	params["biz_content"] = r.BizContent
 	//TODO 提供一个用户设置参数的接口
-	//append(params,userParams)
+	//utils.putAll(params,userParams)
 	return params
 }
 

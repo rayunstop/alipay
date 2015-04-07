@@ -8,13 +8,18 @@ import (
 	"strconv"
 )
 
-var Convertor Converter
+var c Convertor
 
-type Converter struct{}
+type Convertor struct{}
 
-// Conver 自定义解析器
+// Do 自定义解析器
 // 将json.Unmarshal过的map值映射到结构体
-func (c *Converter) Conver(o interface{}, params map[string]interface{}) error {
+func Do(o interface{}, params map[string]interface{}) error {
+	return c.doconv(o, params)
+}
+
+// valid 判断参数合法性
+func (c *Convertor) doconv(o interface{}, params map[string]interface{}) error {
 	// log.Printf("type : %s,value: %s", reflect.TypeOf(o).Kind(), params)
 	rv := reflect.ValueOf(o)
 	if rv.Kind() != reflect.Ptr || rv.IsNil() {
@@ -24,7 +29,7 @@ func (c *Converter) Conver(o interface{}, params map[string]interface{}) error {
 }
 
 // inject 注入值
-func (c *Converter) inject(v reflect.Value, params map[string]interface{}) (err error) {
+func (c *Convertor) inject(v reflect.Value, params map[string]interface{}) (err error) {
 
 	defer func() {
 		if r := recover(); r != nil {
@@ -53,6 +58,19 @@ func (c *Converter) inject(v reflect.Value, params map[string]interface{}) (err 
 			if tag == k {
 				nv[f.Name] = v
 			}
+		}
+	}
+	if len(nv) == 0 {
+		// 第一轮没有匹配的，拿到value后进行第二轮
+		for _, v := range params {
+			if obj, ok := v.(map[string]interface{}); ok {
+				for ok, ov := range obj {
+					nv[ok] = ov
+				}
+			}
+		}
+		if len(nv) != 0 {
+			return c.inject(v, nv)
 		}
 	}
 	// log.Println(nv)

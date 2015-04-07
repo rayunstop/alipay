@@ -21,7 +21,7 @@ type Addr struct {
 	Home string `align:"home"`
 }
 
-var rsp = `{"age":1800,"name":"test","msg":{"time":"20150331","address":{"home":"hello world"}}}`
+var rsp = `{"response":{"age":1800,"name":"test","msg":{"time":"20150331","address":{"home":"hello world"}}},"sign":"adsuhdawkjdiahandawdh"}`
 
 func TestConver(t *testing.T) {
 
@@ -29,7 +29,7 @@ func TestConver(t *testing.T) {
 	json.Unmarshal([]byte(rsp), &params)
 
 	o := &People{}
-	err := Convertor.Conver(o, params)
+	err := Do(o, params)
 	if err != nil {
 		t.Error(err)
 		t.FailNow()

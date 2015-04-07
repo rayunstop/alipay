@@ -8,4 +8,5 @@ const (
 	Format    = "format"
 	Timestamp = "timestamp"
 	Version   = "version"
+	Charset   = "charset"
 )

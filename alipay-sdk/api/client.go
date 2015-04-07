@@ -8,7 +8,7 @@ import (
 	"github.com/alipay/alipay-sdk/api/response"
 	"github.com/alipay/alipay-sdk/api/sign"
 	"github.com/alipay/alipay-sdk/api/utils"
-	"github.com/qiniu/iconv"
+	// "github.com/qiniu/iconv"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -32,6 +32,7 @@ type DefaultAlipayClient struct {
 	ConTimeOut  int32
 	ReadTimeOut int32
 	SignType    string
+	Charset     string
 }
 
 // 实现接口
@@ -42,13 +43,6 @@ func (d *DefaultAlipayClient) Execute(r request.AlipayRequest) (response.AlipayR
 // 实现接口
 func (d *DefaultAlipayClient) ExecuteWithToken(r request.AlipayRequest, token string) (response.AlipayResponse, error) {
 
-	// convert utf-8 to gbk
-	cd, err := iconv.Open("utf-8", "gbk")
-	if err != nil {
-		return nil, err
-	}
-	defer cd.Close()
-
 	// 获取必须参数
 	rp := make(map[string]string)
 	rp[constants.AppId] = d.AppId
@@ -56,6 +50,7 @@ func (d *DefaultAlipayClient) ExecuteWithToken(r request.AlipayRequest, token st
 	rp[constants.SignType] = d.SignType
 	rp[constants.Timestamp] = time.Now().Format("2006-01-02 15:03:04")
 	rp[constants.Version] = r.GetApiVersion()
+	rp[constants.Charset] = d.Charset
 	utils.PutAll(rp, r.GetTextParams())
 	// 可选参数
 	// rp[constants.Format] = d.Format
@@ -77,11 +72,12 @@ func (d *DefaultAlipayClient) ExecuteWithToken(r request.AlipayRequest, token st
 	if err != nil {
 		return nil, err
 	}
+	log.Printf("alipay return : %s", string(msg))
 	// 解析resp
 	params := make(map[string]interface{})
 	json.Unmarshal(msg, &params)
 	resp := r.GetResponse()
-	d.resultMapping(resp, params)
+	conver.Do(resp, params)
 
 	// 不成功
 	if !resp.IsSuccess() {
@@ -89,19 +85,4 @@ func (d *DefaultAlipayClient) ExecuteWithToken(r request.AlipayRequest, token st
 		log.Println("todo to show all error message")
 	}
 	return resp, nil
-}
-
-// resultMapping 将结果映射到response
-func (d *DefaultAlipayClient) resultMapping(r response.AlipayResponse, params map[string]interface{}) {
-
-	log.Printf("alipay return : %+v", params)
-	// 拿到除sign的另一个key的值
-	for k, v := range params {
-		if k != "sign" {
-			if value, ok := v.(map[string]interface{}); ok {
-				conver.Convertor.Conver(r, value)
-			}
-		}
-	}
-
 }

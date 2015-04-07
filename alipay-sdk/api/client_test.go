@@ -16,6 +16,7 @@ func TestDefaultClientWork(t *testing.T) {
 		ConTimeOut:  2000,
 		ReadTimeOut: 2000,
 		SignType:    "RSA",
+		Charset:     "GBK",
 	}
 	ImgText := "{'articles':[{'actionName':'立即查看','desc':'这是图文内容','imageUrl':'http://pic.alipayobjects.com/e/201311/1PaQ27Go6H_src.jpg','title':'这是标题','url':'https://www.alipay.com/'}],'msgType':'image-text','toUserId':'kquy1L6pBsGPHDYCYeBhLJqKo7ILToCxhO4skMe5bRK-S4-HyunMvYTqiRYEUD+U01'}"
 	r := &request.AlipayMobilePublicMessageCustomSendRequest{
@@ -28,4 +29,5 @@ func TestDefaultClientWork(t *testing.T) {
 		t.FailNow()
 	}
 	log.Printf("%+v", resp)
+
 }
