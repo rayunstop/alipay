@@ -8,12 +8,20 @@ import (
 	"github.com/alipay/alipay-sdk/api/response"
 	"github.com/alipay/alipay-sdk/api/sign"
 	"github.com/alipay/alipay-sdk/api/utils"
-	// "github.com/qiniu/iconv"
+	"github.com/huandu/xstrings"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"strings"
 	"time"
+)
+
+// default
+const (
+	format         = "json"
+	signType       = "RSA"
+	connectTimeout = 3000
+	readTimeout    = 15000
 )
 
 // AlipayClient 客户端接口
@@ -47,7 +55,7 @@ func (d *DefaultAlipayClient) ExecuteWithToken(r request.AlipayRequest, token st
 	rp := make(map[string]string)
 	rp[constants.AppId] = d.AppId
 	rp[constants.Method] = r.GetApiMethod()
-	rp[constants.SignType] = d.SignType
+	rp[constants.SignType] = signType // TODO
 	rp[constants.Timestamp] = time.Now().Format("2006-01-02 15:03:04")
 	rp[constants.Version] = r.GetApiVersion()
 	rp[constants.Charset] = d.Charset
@@ -75,9 +83,22 @@ func (d *DefaultAlipayClient) ExecuteWithToken(r request.AlipayRequest, token st
 	log.Printf("alipay return : %s", string(msg))
 	// 解析resp
 	params := make(map[string]interface{})
-	json.Unmarshal(msg, &params)
+	err = json.Unmarshal(msg, &params)
+	if err != nil {
+		log.Println(err)
+	}
+
 	resp := r.GetResponse()
-	conver.Do(resp, params)
+	// 获得响应报文
+	v := params[xstrings.ToSnakeCase(resp.ToStr())]
+	if sub, ok := v.(map[string]interface{}); ok {
+		params = sub
+	}
+	// 映射
+	err = conver.Do(resp, params)
+	if err != nil {
+		log.Println(err)
+	}
 
 	// 不成功
 	if !resp.IsSuccess() {

@@ -13,12 +13,12 @@ var c Convertor
 type Convertor struct{}
 
 // Do 自定义解析器
-// 将json.Unmarshal过的map值映射到结构体
+// 将map值映射到结构体
 func Do(o interface{}, params map[string]interface{}) error {
 	return c.doconv(o, params)
 }
 
-// valid 判断参数合法性
+// doconv 判断参数合法性
 func (c *Convertor) doconv(o interface{}, params map[string]interface{}) error {
 	// log.Printf("type : %s,value: %s", reflect.TypeOf(o).Kind(), params)
 	rv := reflect.ValueOf(o)
@@ -26,6 +26,20 @@ func (c *Convertor) doconv(o interface{}, params map[string]interface{}) error {
 		return errors.New(fmt.Sprintf("%v can not be assign ", o))
 	}
 	return c.inject(rv, params)
+}
+
+// print test
+func (c *Convertor) print(v reflect.Value, params map[string]interface{}) (err error) {
+
+	t := v.Type()
+	if t.Kind() == reflect.Ptr {
+		t = t.Elem()
+	}
+	for i := 0; i < t.NumField(); i++ {
+		f := t.Field(i)
+		fmt.Println(f.Anonymous)
+	}
+	return nil
 }
 
 // inject 注入值
@@ -40,7 +54,7 @@ func (c *Convertor) inject(v reflect.Value, params map[string]interface{}) (err 
 		}
 	}()
 
-	// log.Println(v.IsValid(), v.Kind(), params)
+	// fmt.Println(v.IsValid(), v.Kind(), params)
 	if !v.IsValid() {
 		return errors.New(fmt.Sprintf("%s is invalid", v))
 	}
@@ -53,6 +67,24 @@ func (c *Convertor) inject(v reflect.Value, params map[string]interface{}) (err 
 	nv := make(map[string]interface{})
 	for i := 0; i < t.NumField(); i++ {
 		f := t.Field(i)
+		// 匿名结构体
+		if f.Anonymous {
+			ta := f.Type
+			if ta.Kind() == reflect.Ptr {
+				ta = ta.Elem()
+			}
+			for j := 0; j < ta.NumField(); j++ {
+				fa := ta.Field(j)
+				tag := fa.Tag.Get("align")
+				for k, v := range params {
+					if tag == k {
+						nv[fa.Name] = v
+					}
+				}
+			}
+			continue
+		}
+
 		tag := f.Tag.Get("align")
 		for k, v := range params {
 			if tag == k {
@@ -60,20 +92,7 @@ func (c *Convertor) inject(v reflect.Value, params map[string]interface{}) (err 
 			}
 		}
 	}
-	if len(nv) == 0 {
-		// 第一轮没有匹配的，拿到value后进行第二轮
-		for _, v := range params {
-			if obj, ok := v.(map[string]interface{}); ok {
-				for ok, ov := range obj {
-					nv[ok] = ov
-				}
-			}
-		}
-		if len(nv) != 0 {
-			return c.inject(v, nv)
-		}
-	}
-	// log.Println(nv)
+
 	for k, value := range nv {
 
 		f := reflect.Value{}
