@@ -55,3 +55,12 @@ type AlipayPassTplContentAddResponse struct {
 	ErrorCode string `align:"error_code"`
 	Success   string `align:"success"` //T-成功；F-失败
 }
+
+// AlipayPassSyncUpdateResponse
+// refer AlipayPassSyncUpdateRequest
+type AlipayPassSyncUpdateResponse struct {
+	BaseResponse
+	BizResult string `align:"biz_result"`
+	ErrorCode string `align:"error_code"`
+	Success   string `align:"success"` //T-成功；F-失败
+}

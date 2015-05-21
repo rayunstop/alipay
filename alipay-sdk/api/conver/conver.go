@@ -115,6 +115,10 @@ func (c *Convertor) inject(v reflect.Value, params map[string]interface{}) (err 
 				// or fmt.Sprintf("%.0f", float)
 				f.SetString(strconv.FormatFloat(float, 'f', -1, 64))
 			}
+			// if value is bool,just convet it to string
+			if b, ok := value.(bool); ok {
+				f.SetString(strconv.FormatBool(b))
+			}
 		case reflect.Struct:
 			// 如果是struct，直接进行递归
 			if m, ok := value.(map[string]interface{}); ok {

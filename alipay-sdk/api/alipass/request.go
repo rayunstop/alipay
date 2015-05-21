@@ -11,6 +11,7 @@ type BaseRequest struct {
 	PrivateKeyData string
 }
 
+// AddTplRequest 添加模板请求对象
 type AddTplRequest struct {
 	BaseRequest
 	TemplateId             string
@@ -18,4 +19,16 @@ type AddTplRequest struct {
 	TemplateParamValuePair map[string]string
 	UserTypeParams         map[string]string
 	UserType               string
+}
+
+// UpdAlipssRequest alipass更新请求入参对象
+type UpdAlipssRequest struct {
+	BaseRequest
+	SerialNumber string
+	Pass         string
+	Status       string
+	ChannelId    string
+	VerifyCode   string
+	VerifyType   string
+	ExtInfo      map[string]string
 }

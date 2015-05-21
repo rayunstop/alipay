@@ -8,14 +8,6 @@ import (
 	"github.com/alipay/alipay-sdk/api/response"
 )
 
-// Alipass用户识别方式枚举类型
-const (
-	TRADE  = "1" // 支付宝交易
-	USERID = "2" // 支付宝用户ID
-	MOBILE = "3" // 支付宝用户绑定手机号
-	OPENID = "4" // 支付宝公众号开放ID
-)
-
 // AlipassTransferService 卡券服务类
 type AlipassTransferService struct {
 }
@@ -50,9 +42,9 @@ func (a *AlipassTransferService) AddByTemplate(r *AddTplRequest) (*response.Alip
 	contentAddRequest.RecognitionInfo = string(recognitionInfoBytes)
 	contentAddRequest.TplParams = string(tplParamsBytes)
 	contentAddRequest.TplId = r.TemplateId
+
 	// 执行
 	resp, err := c.Execute(contentAddRequest)
-
 	if err != nil {
 		return nil, err
 	}
@@ -61,12 +53,48 @@ func (a *AlipassTransferService) AddByTemplate(r *AddTplRequest) (*response.Alip
 	return tplAddResponse, nil
 }
 
-// AddByTemplate 模板方式添加卡券
-func (a *AlipassTransferService) UpdateByTemplate() {
+// UpdateByTemplate 更新卡券状态
+func (a *AlipassTransferService) UpdateAlipass(r *UpdAlipssRequest) (*response.AlipayPassSyncUpdateResponse, error) {
 
+	// 验证参数合法性
+
+	// 请求对象
+	passUpdRequest := &request.AlipayPassSyncUpdateRequest{}
+
+	// client
+	c := &api.DefaultAlipayClient{
+		AppId:     r.AppId,
+		ServerURL: r.AlipayApiUrl,
+		PrivKey:   r.PrivateKeyData,
+		Charset:   "UTF-8",
+	}
+
+	passUpdRequest.SerialNumber = r.SerialNumber
+	passUpdRequest.Pass = r.Pass
+	passUpdRequest.ChannelId = r.ChannelId
+	passUpdRequest.VerifyCode = r.VerifyCode
+	passUpdRequest.VerifyType = r.VerifyType
+	// passUpdRequest.Status = r.Status
+
+	if len(r.ExtInfo) > 0 {
+		extInfoBytes, err := json.Marshal(r.ExtInfo)
+		if err == nil {
+			passUpdRequest.ExtInfo = string(extInfoBytes)
+		}
+	}
+
+	passUpdRequest.PutOtherTextParam("operator_id", r.AppId)
+
+	resp, err := c.Execute(passUpdRequest)
+	if err != nil {
+		return nil, err
+	}
+
+	passUpdResponse := resp.(*response.AlipayPassSyncUpdateResponse)
+	return passUpdResponse, nil
 }
 
-// AddByTemplate 模板方式添加卡券
+// CreateByTemplate 创建卡券
 func (a *AlipassTransferService) CreateByTemplate() {
 
 }

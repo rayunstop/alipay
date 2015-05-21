@@ -91,6 +91,10 @@ func (d *DefaultAlipayClient) ExecuteWithToken(r request.AlipayRequest, token st
 	resp := r.GetResponse()
 	// 获得响应报文
 	v := params[xstrings.ToSnakeCase(resp.ToStr())]
+	// 可能返回失败报文
+	if v == nil {
+		v = params["error_response"]
+	}
 	if sub, ok := v.(map[string]interface{}); ok {
 		params = sub
 	}
