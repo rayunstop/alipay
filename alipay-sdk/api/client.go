@@ -51,6 +51,48 @@ func (d *DefaultAlipayClient) Execute(r request.AlipayRequest) (response.AlipayR
 // 实现接口
 func (d *DefaultAlipayClient) ExecuteWithToken(r request.AlipayRequest, token string) (response.AlipayResponse, error) {
 
+	// 请求
+	msg, err := d.post(r, token)
+	if err != nil {
+		return nil, err
+	}
+	log.Printf("alipay return : %s", string(msg))
+
+	// body
+	resp := r.GetResponse()
+	resp.SetBody(string(msg))
+
+	// 解析resp
+	params := make(map[string]interface{})
+	err = json.Unmarshal(msg, &params)
+	if err != nil {
+		log.Println(err)
+	}
+
+	// 获得响应报文
+	v := params[xstrings.ToSnakeCase(resp.ToStr())]
+	// 可能返回失败报文
+	if v == nil {
+		v = params["error_response"]
+	}
+	if sub, ok := v.(map[string]interface{}); ok {
+		params = sub
+	}
+	// 映射
+	err = conver.Do(resp, params)
+	if err != nil {
+		log.Println(err)
+	}
+
+	// 不成功
+	if !resp.IsSuccess() {
+		//TODO
+		log.Println("todo to show all error message")
+	}
+	return resp, nil
+}
+
+func (d *DefaultAlipayClient) post(r request.AlipayRequest, token string) ([]byte, error) {
 	// 获取必须参数
 	rp := make(map[string]string)
 	rp[constants.AppId] = d.AppId
@@ -74,40 +116,11 @@ func (d *DefaultAlipayClient) ExecuteWithToken(r request.AlipayRequest, token st
 	// 请求
 	result, err := http.Post(d.ServerURL, "application/x-www-form-urlencoded;charset=utf-8", strings.NewReader(values.Encode()))
 	if err != nil {
-		return nil, err
+		log.Println(err)
 	}
 	msg, err := ioutil.ReadAll(result.Body)
 	if err != nil {
-		return nil, err
-	}
-	log.Printf("alipay return : %s", string(msg))
-	// 解析resp
-	params := make(map[string]interface{})
-	err = json.Unmarshal(msg, &params)
-	if err != nil {
 		log.Println(err)
 	}
-
-	resp := r.GetResponse()
-	// 获得响应报文
-	v := params[xstrings.ToSnakeCase(resp.ToStr())]
-	// 可能返回失败报文
-	if v == nil {
-		v = params["error_response"]
-	}
-	if sub, ok := v.(map[string]interface{}); ok {
-		params = sub
-	}
-	// 映射
-	err = conver.Do(resp, params)
-	if err != nil {
-		log.Println(err)
-	}
-
-	// 不成功
-	if !resp.IsSuccess() {
-		//TODO
-		log.Println("todo to show all error message")
-	}
-	return resp, nil
+	return msg, err
 }

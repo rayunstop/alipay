@@ -11,6 +11,8 @@ type AlipayResponse interface {
 	IsSuccess() bool
 	// 接口名称
 	ToStr() string
+	// 保留body
+	SetBody(body string)
 }
 
 type BaseResponse struct {
@@ -19,6 +21,7 @@ type BaseResponse struct {
 	SubCode string `align:"sub_code"`
 	SubMsg  string `align:"sub_msg"`
 	Name    string
+	Body    string
 }
 
 func (r *BaseResponse) IsSuccess() bool {
@@ -26,8 +29,14 @@ func (r *BaseResponse) IsSuccess() bool {
 	return strings.EqualFold("", r.SubCode)
 }
 
+// ToStr 输出类名，用于动态获取支付宝返回值key
 func (r *BaseResponse) ToStr() string {
 	return r.Name
+}
+
+// SetBody 保存请求结果
+func (r *BaseResponse) SetBody(body string) {
+	r.Body = body
 }
 
 // AlipayMobilePublicMessageCustomSendResponse
@@ -63,4 +72,15 @@ type AlipayPassSyncUpdateResponse struct {
 	BizResult string `align:"biz_result"`
 	ErrorCode string `align:"error_code"`
 	Success   string `align:"success"` //T-成功；F-失败
+}
+
+// AlipayMobilePublicGisGetResponse
+// refer AlipayMobilePublicGisGetRequest
+type AlipayMobilePublicGisGetResponse struct {
+	BaseResponse
+	Accuracy  string `align:"accuracy"`
+	City      string `align:"city"`
+	Latitude  string `align:"latitude"`
+	Longitude string `align:"longitude"`
+	Province  string `align:"province"`
 }

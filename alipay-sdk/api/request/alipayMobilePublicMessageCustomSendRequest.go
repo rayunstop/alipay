@@ -5,7 +5,7 @@ import (
 )
 
 // AlipayMobilePublicMessageCustomSendRequest
-// API: alipay.mobile.public.message.custom.send request
+// API: alipay.mobile.public.message.caustom.send request
 type AlipayMobilePublicMessageCustomSendRequest struct {
 	BizContent string
 }
