@@ -1,8 +1,8 @@
 package request
 
 import (
-	"github.com/alipay/alipay-sdk/api/response"
-	"github.com/alipay/alipay-sdk/api/utils"
+	"github.com/rui2014/alipay/api/response"
+	"github.com/rui2014/alipay/api/utils"
 )
 
 // AlipayPassSyncUpdateRequest

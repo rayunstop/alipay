@@ -1,14 +1,14 @@
-package api
+package alipay
 
 import (
 	"encoding/json"
-	"github.com/alipay/alipay-sdk/api/constants"
-	"github.com/alipay/alipay-sdk/api/conver"
-	"github.com/alipay/alipay-sdk/api/request"
-	"github.com/alipay/alipay-sdk/api/response"
-	"github.com/alipay/alipay-sdk/api/sign"
-	"github.com/alipay/alipay-sdk/api/utils"
 	"github.com/huandu/xstrings"
+	"github.com/rui2014/alipay/api/constants"
+	"github.com/rui2014/alipay/api/conver"
+	"github.com/rui2014/alipay/api/request"
+	"github.com/rui2014/alipay/api/response"
+	"github.com/rui2014/alipay/api/sign"
+	"github.com/rui2014/alipay/api/utils"
 	"io/ioutil"
 	"log"
 	"net/http"

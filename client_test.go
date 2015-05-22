@@ -1,7 +1,7 @@
-package api
+package alipay
 
 import (
-	"github.com/alipay/alipay-sdk/api/request"
+	"github.com/rui2014/alipay/api/request"
 	"log"
 	"testing"
 )
