@@ -1,7 +1,7 @@
 package request
 
 import (
-	"github.com/alipay/alipay-sdk/api/response"
+	"github.com/rui2014/alipay/api/response"
 )
 
 // AlipayRequest request接口
