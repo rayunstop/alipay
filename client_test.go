@@ -24,7 +24,6 @@ func init() {
 	// 	SignType:    "RSA",
 	// 	Charset:     "GBK",
 	// }
-	// 必胜客
 	alipayClient = &DefaultAlipayClient{
 		AppId:       "2015040200041603",
 		ServerURL:   "https://openapi.alipay.com/gateway.do",
