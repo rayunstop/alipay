@@ -42,4 +42,10 @@ resp, err := c.Execute(r)
 * github.com/z-ray/alipay/api/utils 一些通用方法
 * github.com/z-ray/alipay/api/conver 解析map，映射到结构体
 
+###TODO LIST
+* 常量化事件消息json串，每种请求类型都有固定的消息体
+* 补充错误日志
+* 补充更多的请求、返回类
+* 优化对请求结果的处理
+
 
