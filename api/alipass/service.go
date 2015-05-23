@@ -3,9 +3,9 @@ package alipass
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/rui2014/alipay/api"
-	"github.com/rui2014/alipay/api/request"
-	"github.com/rui2014/alipay/api/response"
+	"github.com/z-ray/alipay/api"
+	"github.com/z-ray/alipay/api/request"
+	"github.com/z-ray/alipay/api/response"
 )
 
 // AlipassTransferService 卡券服务类
