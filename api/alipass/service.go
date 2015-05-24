@@ -3,7 +3,7 @@ package alipass
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/z-ray/alipay/api"
+	"github.com/z-ray/alipay"
 	"github.com/z-ray/alipay/api/request"
 	"github.com/z-ray/alipay/api/response"
 )
@@ -19,7 +19,7 @@ func (a *AlipassTransferService) AddByTemplate(r *AddTplRequest) (*response.Alip
 	contentAddRequest := &request.AlipayPassTplContentAddRequest{}
 
 	// client
-	c := &api.DefaultAlipayClient{
+	c := &alipay.DefaultAlipayClient{
 		AppId:     r.AppId,
 		ServerURL: r.AlipayApiUrl,
 		PrivKey:   r.PrivateKeyData,
@@ -62,7 +62,7 @@ func (a *AlipassTransferService) UpdateAlipass(r *UpdAlipssRequest) (*response.A
 	passUpdRequest := &request.AlipayPassSyncUpdateRequest{}
 
 	// client
-	c := &api.DefaultAlipayClient{
+	c := &alipay.DefaultAlipayClient{
 		AppId:     r.AppId,
 		ServerURL: r.AlipayApiUrl,
 		PrivKey:   r.PrivateKeyData,
