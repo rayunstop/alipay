@@ -1,8 +1,12 @@
-package log
+package logger
 
 import (
-// "bytes"
-// "os"
+	// "bytes"
+	"fmt"
+	"github.com/z-ray/alipay/api/response"
+	// "os"
+	"runtime"
+	"time"
 )
 
 /**
@@ -27,9 +31,17 @@ Body:{"error_response":{"code":"40004","msg":"Business Failed","sub_code":"isv.S
 
 */
 
-// FailLog 失败日志
-func FailLog(params map[string]string) string {
+// SecureError 接入支付宝时安全机制错误
+func SecureError(params map[string]string, resp response.AlipayResponse) {
 
-	return ""
+	now := time.Now()
+	// osName := os.
+	version := runtime.Version()
+	fmt.Printf("[Alipay] %v | %3d:%s:%s | %s | %+v",
+		now.Format("2006/01/02-15:04:05"),
+		resp.GetCode(), resp.GetSubCode(), resp.GetMsg(),
+		version,
+		params,
+	)
 
 }

@@ -13,6 +13,12 @@ type AlipayResponse interface {
 	ToStr() string
 	// 保留body
 	SetBody(body string)
+	// code
+	GetCode() string
+	// subCode
+	GetSubCode() string
+	// msg
+	GetMsg() string
 }
 
 type BaseResponse struct {
@@ -37,6 +43,21 @@ func (r *BaseResponse) ToStr() string {
 // SetBody 保存请求结果
 func (r *BaseResponse) SetBody(body string) {
 	r.Body = body
+}
+
+// GetCode
+func (r *BaseResponse) GetCode() string {
+	return r.Code
+}
+
+// GetSubCode
+func (r *BaseResponse) GetSubCode() string {
+	return r.SubCode
+}
+
+// GetMsg
+func (r *BaseResponse) GetMsg() string {
+	return r.Msg
 }
 
 // AlipayMobilePublicMessageCustomSendResponse

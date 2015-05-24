@@ -5,6 +5,7 @@ import (
 	"github.com/huandu/xstrings"
 	"github.com/z-ray/alipay/api/constants"
 	"github.com/z-ray/alipay/api/conver"
+	"github.com/z-ray/alipay/api/logger"
 	"github.com/z-ray/alipay/api/request"
 	"github.com/z-ray/alipay/api/response"
 	"github.com/z-ray/alipay/api/sign"
@@ -52,7 +53,7 @@ func (d *DefaultAlipayClient) Execute(r request.AlipayRequest) (response.AlipayR
 func (d *DefaultAlipayClient) ExecuteWithToken(r request.AlipayRequest, token string) (response.AlipayResponse, error) {
 
 	// 请求
-	msg, err := d.post(r, token)
+	msg, rp, err := d.post(r, token)
 	if err != nil {
 		return nil, err
 	}
@@ -81,18 +82,19 @@ func (d *DefaultAlipayClient) ExecuteWithToken(r request.AlipayRequest, token st
 	// 映射
 	err = conver.Do(resp, params)
 	if err != nil {
+		// TODO 系统、业务错误
 		log.Println(err)
 	}
 
-	// 不成功
+	// 当发生安全机制接入错误时
+	// 详细见https://fuwu.alipay.com/platform/doc.htm#c09
 	if !resp.IsSuccess() {
-		//TODO
-		log.Println("todo to show all error message")
+		logger.SecureError(rp, resp)
 	}
 	return resp, nil
 }
 
-func (d *DefaultAlipayClient) post(r request.AlipayRequest, token string) ([]byte, error) {
+func (d *DefaultAlipayClient) post(r request.AlipayRequest, token string) ([]byte, map[string]string, error) {
 	// 获取必须参数
 	rp := make(map[string]string)
 	rp[constants.AppId] = d.AppId
@@ -122,5 +124,5 @@ func (d *DefaultAlipayClient) post(r request.AlipayRequest, token string) ([]byt
 	if err != nil {
 		log.Println(err)
 	}
-	return msg, err
+	return msg, rp, err
 }
