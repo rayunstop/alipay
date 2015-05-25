@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"github.com/huandu/xstrings"
 	"github.com/z-ray/alipay/api/constants"
-	// "github.com/z-ray/alipay/api/conver"
 	"github.com/z-ray/alipay/api/logger"
 	"github.com/z-ray/alipay/api/request"
 	"github.com/z-ray/alipay/api/response"
@@ -106,7 +105,7 @@ func (d *DefaultAlipayClient) post(r request.AlipayRequest, token string) (strin
 	// rp[constants.Format] = d.Format
 
 	// 请求报文
-	content := sign.PrepareContent(rp)
+	content := utils.PrepareContent(rp)
 	// 签名
 	signed, err := sign.RsaSign(content, d.PrivKey)
 	rp[constants.Sign] = signed

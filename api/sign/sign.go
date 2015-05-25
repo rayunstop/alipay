@@ -1,30 +1,26 @@
 package sign
 
 import (
-	"bytes"
 	"crypto"
 	"crypto/rand"
 	"crypto/rsa"
 	"crypto/sha1"
 	"crypto/x509"
 	"encoding/base64"
-	"encoding/pem"
 	"errors"
 	"fmt"
 	"log"
-	"sort"
 )
 
 func genPubKey(key string) (pubKey *rsa.PublicKey) {
 
-	block, _ := pem.Decode([]byte(key))
-	if block == nil {
-		log.Fatal("parse PUBLIC KEY PEM error")
+	// 解base64
+	encodedKey, err := base64.StdEncoding.DecodeString(key)
+	if err != nil {
+		log.Fatal(err)
 	}
-	if block.Type != "PUBLIC KEY" {
-		log.Fatal("wrong key type" + block.Type)
-	}
-	pkix, err := x509.ParsePKIXPublicKey(block.Bytes)
+
+	pkix, err := x509.ParsePKIXPublicKey(encodedKey)
 	if err != nil {
 		log.Fatal("unable to parse pxix key")
 	}
@@ -119,29 +115,4 @@ func EncryptAndSignResponse(content, cusPrivKey string, isEncrypt, isSign bool) 
 		return "", errors.New("params wrong")
 	}
 	return builder, nil
-}
-
-// PrepareContent 准备请求的报文
-// 按照字典排序
-func PrepareContent(dict map[string]string) string {
-
-	s := make([]string, 0, len(dict))
-	for k, _ := range dict {
-		s = append(s, k)
-	}
-	// 排序
-	sort.Strings(s)
-
-	var buf bytes.Buffer
-	for _, v := range s {
-		param := dict[v]
-		// 过滤掉空的key
-		if param != "" {
-			if buf.Len() > 0 {
-				buf.WriteByte('&')
-			}
-			buf.WriteString(v + "=" + param)
-		}
-	}
-	return buf.String()
 }
