@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"github.com/huandu/xstrings"
 	"github.com/z-ray/alipay/api/constants"
-	"github.com/z-ray/alipay/api/conver"
+	// "github.com/z-ray/alipay/api/conver"
 	"github.com/z-ray/alipay/api/logger"
 	"github.com/z-ray/alipay/api/request"
 	"github.com/z-ray/alipay/api/response"
@@ -57,32 +57,30 @@ func (d *DefaultAlipayClient) ExecuteWithToken(r request.AlipayRequest, token st
 	if err != nil {
 		return nil, err
 	}
-	log.Printf("alipay return : %s", string(msg))
+
+	log.Printf("alipay return : %s", msg)
 
 	// body
 	resp := r.GetResponse()
-	resp.SetBody(string(msg))
+	resp.SetBody(msg)
 
-	// 解析resp
-	params := make(map[string]interface{})
-	err = json.Unmarshal(msg, &params)
-	if err != nil {
-		log.Println(err)
+	// replace
+	k := xstrings.ToSnakeCase(resp.ToStr())
+	if strings.Contains(msg, k) {
+		msg = strings.Replace(msg, k, "response", 1)
+	} else {
+		msg = strings.Replace(msg, "error_response", "response", 1)
 	}
 
-	// 获得响应报文
-	v := params[xstrings.ToSnakeCase(resp.ToStr())]
-	// 可能返回失败报文
-	if v == nil {
-		v = params["error_response"]
+	// convert
+	var t = &struct {
+		Response response.AlipayResponse `json:"response"`
+		Sign     string                  `json:"sign"`
+	}{
+		resp, "",
 	}
-	if sub, ok := v.(map[string]interface{}); ok {
-		params = sub
-	}
-	// 映射
-	err = conver.Do(resp, params)
+	err = json.Unmarshal([]byte(msg), t)
 	if err != nil {
-		// TODO 系统、业务错误
 		log.Println(err)
 	}
 
@@ -94,7 +92,7 @@ func (d *DefaultAlipayClient) ExecuteWithToken(r request.AlipayRequest, token st
 	return resp, nil
 }
 
-func (d *DefaultAlipayClient) post(r request.AlipayRequest, token string) ([]byte, map[string]string, error) {
+func (d *DefaultAlipayClient) post(r request.AlipayRequest, token string) (string, map[string]string, error) {
 	// 获取必须参数
 	rp := make(map[string]string)
 	rp[constants.AppId] = d.AppId
@@ -124,5 +122,5 @@ func (d *DefaultAlipayClient) post(r request.AlipayRequest, token string) ([]byt
 	if err != nil {
 		log.Println(err)
 	}
-	return msg, rp, err
+	return string(msg), rp, err
 }

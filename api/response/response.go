@@ -22,10 +22,10 @@ type AlipayResponse interface {
 }
 
 type BaseResponse struct {
-	Code    string `align:"code"`
-	Msg     string `align:"msg"`
-	SubCode string `align:"sub_code"`
-	SubMsg  string `align:"sub_msg"`
+	Code    string `json:"code"`
+	Msg     string `json:"msg"`
+	SubCode string `json:"sub_code"`
+	SubMsg  string `json:"sub_msg"`
 	Name    string
 	Body    string
 }
@@ -70,38 +70,38 @@ type AlipayMobilePublicMessageCustomSendResponse struct {
 // refer AlipaySystemOauthTokenRequest
 type AlipaySystemOauthTokenResponse struct {
 	BaseResponse
-	AccessToken  string `align:"access_token"`
-	AlipayUserId string `align:"alipay_user_id"`
-	ExpiresIn    string `align:"expires_in"`
-	ReExpiresIn  string `align:"re_expires_in"`
-	RefreshToken string `align:"refresh_token"`
+	AccessToken  string `json:"access_token"`
+	AlipayUserId string `json:"alipay_user_id"`
+	ExpiresIn    string `json:"expires_in"`
+	ReExpiresIn  string `json:"re_expires_in"`
+	RefreshToken string `json:"refresh_token"`
 }
 
 // AlipayPassTplContentAddResponse
 // refer AlipayPassTplContentAddRequest
 type AlipayPassTplContentAddResponse struct {
 	BaseResponse
-	BizResult string `align:"biz_result"`
-	ErrorCode string `align:"error_code"`
-	Success   string `align:"success"` //T-成功；F-失败
+	BizResult string `json:"biz_result"`
+	ErrorCode string `json:"error_code"`
+	Success   string `json:"success"` //T-成功；F-失败
 }
 
 // AlipayPassSyncUpdateResponse
 // refer AlipayPassSyncUpdateRequest
 type AlipayPassSyncUpdateResponse struct {
 	BaseResponse
-	BizResult string `align:"biz_result"`
-	ErrorCode string `align:"error_code"`
-	Success   string `align:"success"` //T-成功；F-失败
+	BizResult string `json:"biz_result"`
+	ErrorCode string `json:"error_code"`
+	Success   bool   `json:"success"` //T-成功；F-失败
 }
 
 // AlipayMobilePublicGisGetResponse
 // refer AlipayMobilePublicGisGetRequest
 type AlipayMobilePublicGisGetResponse struct {
 	BaseResponse
-	Accuracy  string `align:"accuracy"`
-	City      string `align:"city"`
-	Latitude  string `align:"latitude"`
-	Longitude string `align:"longitude"`
-	Province  string `align:"province"`
+	Accuracy  string `json:"accuracy"`
+	City      string `json:"city"`
+	Latitude  string `json:"latitude"`
+	Longitude string `json:"longitude"`
+	Province  string `json:"province"`
 }
