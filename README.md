@@ -4,6 +4,10 @@
 参考alipay-java-sdk的实现，开发了go版的alipay-sdk，包含卡券平台和服务窗平台。
 API类名称与阿里官方提供的sdk包一样，方便迁移，用过java版的直接上手。
 
+####项目进度
+目前还在开发中，但基础的api调用已通过，接下来会完善细节以及增加更多接口类。
+配套的demo也在开发中，请移步https://github.com/z-ray/alipaydemo。
+
 ####Alipay Client
 ```
 go get github.com/z-ray/alipay
