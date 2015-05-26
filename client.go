@@ -9,8 +9,8 @@ import (
 	"github.com/z-ray/alipay/api/response"
 	"github.com/z-ray/alipay/api/sign"
 	"github.com/z-ray/alipay/api/utils"
+	"github.com/z-ray/log"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"strings"
 	"time"
@@ -57,7 +57,7 @@ func (d *DefaultAlipayClient) ExecuteWithToken(r request.AlipayRequest, token st
 		return nil, err
 	}
 
-	log.Printf("alipay return : %s", msg)
+	log.Debugf("alipay return : %s", msg)
 
 	// body
 	resp := r.GetResponse()
@@ -80,7 +80,7 @@ func (d *DefaultAlipayClient) ExecuteWithToken(r request.AlipayRequest, token st
 	}
 	err = json.Unmarshal([]byte(msg), t)
 	if err != nil {
-		log.Println(err)
+		log.Error(err)
 	}
 
 	// 当发生安全机制接入错误时
@@ -115,11 +115,11 @@ func (d *DefaultAlipayClient) post(r request.AlipayRequest, token string) (strin
 	// 请求
 	result, err := http.Post(d.ServerURL, "application/x-www-form-urlencoded;charset=utf-8", strings.NewReader(values.Encode()))
 	if err != nil {
-		log.Println(err)
+		log.Error(err)
 	}
 	msg, err := ioutil.ReadAll(result.Body)
 	if err != nil {
-		log.Println(err)
+		log.Error(err)
 	}
 	return string(msg), rp, err
 }

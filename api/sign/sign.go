@@ -9,7 +9,7 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
-	"log"
+	"github.com/z-ray/log"
 )
 
 func genPubKey(key string) (pubKey *rsa.PublicKey) {

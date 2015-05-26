@@ -2,7 +2,7 @@ package alipay
 
 import (
 	"github.com/z-ray/alipay/api/request"
-	"log"
+	"github.com/z-ray/log"
 	"testing"
 )
 
@@ -48,7 +48,7 @@ func TestDefaultClientWork(t *testing.T) {
 		t.Error(err)
 		t.FailNow()
 	}
-	log.Printf("%+v", resp)
+	log.Debugf("%+v", resp)
 
 }
 
@@ -63,7 +63,7 @@ func TestGetOpenId(t *testing.T) {
 		t.Error(err)
 		t.FailNow()
 	}
-	log.Printf("%+v", resp)
+	log.Debugf("%+v", resp)
 
 }
 
@@ -77,5 +77,5 @@ func TestGetMobileGis(t *testing.T) {
 		t.Error(err)
 		t.FailNow()
 	}
-	log.Printf("%+v", resp)
+	log.Debugf("%+v", resp)
 }
