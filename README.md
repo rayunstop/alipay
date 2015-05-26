@@ -9,9 +9,14 @@
 * 配套的demo也在开发中，请移步 https://github.com/z-ray/alipaydemo
 
 ####Alipay Client
+* install
 ```
 go get github.com/z-ray/alipay
-go get github.com/z-ray/alipay/api/xxx
+```
+* import
+```
+github.com/z-ray/alipay
+github.com/z-ray/alipay/api/xxx
 ```
 基于sdk开发的一个示例，发送图文消息
 * 定制自己的client
