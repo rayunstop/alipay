@@ -8,7 +8,7 @@
 * 目前还在开发中，但基础的api调用已通过，接下来会完善细节以及增加更多接口类。
 * 配套的demo也在开发中，请移步 https://github.com/z-ray/alipaydemo
 
-####Alipay Client
+####安装调用
 * install
 ```
 go get github.com/z-ray/alipay
@@ -18,6 +18,8 @@ go get github.com/z-ray/alipay
 github.com/z-ray/alipay
 github.com/z-ray/alipay/api/xxx
 ```
+
+####Alipay Client
 基于sdk开发的一个示例，发送图文消息
 * 定制自己的client
 ```go
