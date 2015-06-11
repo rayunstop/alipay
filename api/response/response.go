@@ -1,6 +1,8 @@
 package response
 
 import (
+	"fmt"
+	"github.com/z-ray/log"
 	"strings"
 )
 
@@ -22,10 +24,10 @@ type AlipayResponse interface {
 }
 
 type BaseResponse struct {
-	Code    string `json:"code"`
-	Msg     string `json:"msg"`
-	SubCode string `json:"sub_code"`
-	SubMsg  string `json:"sub_msg"`
+	Code    interface{} `json:"code"`
+	Msg     string      `json:"msg"`
+	SubCode string      `json:"sub_code"`
+	SubMsg  string      `json:"sub_msg"`
 	Name    string
 	Body    string
 }
@@ -47,7 +49,19 @@ func (r *BaseResponse) SetBody(body string) {
 
 // GetCode
 func (r *BaseResponse) GetCode() string {
-	return r.Code
+	// code may be string
+	str, ok := r.Code.(string)
+	if ok {
+		return str
+	}
+	// code may be float64
+	integer, ok := r.Code.(float64)
+	if ok {
+		return fmt.Sprintf("%0.f", integer)
+	}
+	// both not
+	log.Warnf("alipay response code type:%s", r.Code)
+	return ""
 }
 
 // GetSubCode
@@ -72,8 +86,8 @@ type AlipaySystemOauthTokenResponse struct {
 	BaseResponse
 	AccessToken  string `json:"access_token"`
 	AlipayUserId string `json:"alipay_user_id"`
-	ExpiresIn    string `json:"expires_in"`
-	ReExpiresIn  string `json:"re_expires_in"`
+	ExpiresIn    int64  `json:"expires_in"`
+	ReExpiresIn  int64  `json:"re_expires_in"`
 	RefreshToken string `json:"refresh_token"`
 }
 
@@ -104,4 +118,13 @@ type AlipayMobilePublicGisGetResponse struct {
 	Latitude  string `json:"latitude"`
 	Longitude string `json:"longitude"`
 	Province  string `json:"province"`
+}
+
+// AlipayPassTplContentUpdateResponse
+// refer AlipayPassTplContentUpdateRequest
+type AlipayPassTplContentUpdateResponse struct {
+	BaseResponse
+	Result    string `json:"result"`
+	ErrorCode string `json:"error_code"`
+	Success   bool   `json:"success"`
 }

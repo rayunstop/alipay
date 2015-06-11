@@ -112,14 +112,29 @@ func (d *DefaultAlipayClient) post(r request.AlipayRequest, token string) (strin
 
 	// 编码查询参数
 	values := utils.BuildQuery(rp)
-	// 请求
-	result, err := http.Post(d.ServerURL, "application/x-www-form-urlencoded;charset=utf-8", strings.NewReader(values.Encode()))
-	if err != nil {
-		log.Error(err)
+
+	// 重试机制
+	var retryCount = 0
+	var result *http.Response
+	for {
+		if retryCount == 3 {
+			return "", rp, fmt.Errorf("%s", "connect AlipayGateway 3 times fail, give up")
+		}
+		result, err = http.Post(d.ServerURL, "application/x-www-form-urlencoded;charset=utf-8", strings.NewReader(values.Encode()))
+		if err != nil {
+			log.Errorf("connect AlipayGateway fail: %s, retry ...", err)
+			retryCount += 1
+			// 务必休眠一段时间，否则下次可能还会失败
+			time.Sleep(time.Duration(retryCount*3) * time.Second)
+			continue
+		}
+		break
 	}
+
 	msg, err := ioutil.ReadAll(result.Body)
 	if err != nil {
 		log.Error(err)
+		return "", rp, err
 	}
 	return string(msg), rp, err
 }

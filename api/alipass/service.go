@@ -53,6 +53,46 @@ func (a *AlipassTransferService) AddByTemplate(r *AddTplRequest) (*response.Alip
 	return tplAddResponse, nil
 }
 
+// UpdateTplAlipass 模板方式更新卡券
+func (a *AlipassTransferService) UpdateTplAlipass(r *UpdTplAlipssRequest) (*response.AlipayPassTplContentUpdateResponse, error) {
+
+	// 验证参数合法性
+
+	// 请求对象
+	passUpdTplRequest := &request.AlipayPassTplContentUpdateRequest{}
+
+	// client
+	c := &sdk.DefaultAlipayClient{
+		AppId:     r.AppId,
+		ServerURL: r.AlipayApiUrl,
+		PrivKey:   r.PrivateKeyData,
+		Charset:   "UTF-8",
+	}
+
+	passUpdTplRequest.SerialNumber = r.SerialNumber
+	passUpdTplRequest.ChannelId = r.ChannelId
+	passUpdTplRequest.VerifyCode = r.VerifyCode
+	passUpdTplRequest.VerifyType = r.VerifyType
+	passUpdTplRequest.Status = r.Status
+
+	if len(r.TemplateParamValuePair) > 0 {
+		tplParamsBytes, err := json.Marshal(r.TemplateParamValuePair)
+		if err == nil {
+			passUpdTplRequest.TplParams = string(tplParamsBytes)
+		}
+	}
+
+	passUpdTplRequest.PutOtherTextParam("operator_id", r.AppId)
+
+	resp, err := c.Execute(passUpdTplRequest)
+	if err != nil {
+		return nil, err
+	}
+
+	passUpdTplResponse := resp.(*response.AlipayPassTplContentUpdateResponse)
+	return passUpdTplResponse, nil
+}
+
 // UpdateByTemplate 更新卡券状态
 func (a *AlipassTransferService) UpdateAlipass(r *UpdAlipssRequest) (*response.AlipayPassSyncUpdateResponse, error) {
 
@@ -74,7 +114,7 @@ func (a *AlipassTransferService) UpdateAlipass(r *UpdAlipssRequest) (*response.A
 	passUpdRequest.ChannelId = r.ChannelId
 	passUpdRequest.VerifyCode = r.VerifyCode
 	passUpdRequest.VerifyType = r.VerifyType
-	// passUpdRequest.Status = r.Status
+	passUpdRequest.Status = r.Status
 
 	if len(r.ExtInfo) > 0 {
 		extInfoBytes, err := json.Marshal(r.ExtInfo)
