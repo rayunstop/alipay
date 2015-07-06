@@ -1,9 +1,5 @@
 package alipass
 
-const (
-	url = "https://openapi.alipay.com/gateway.do"
-)
-
 // BaseRequest 请求入参基类
 type BaseRequest struct {
 	AlipayApiUrl   string
@@ -31,4 +27,15 @@ type UpdAlipssRequest struct {
 	VerifyCode   string
 	VerifyType   string
 	ExtInfo      map[string]string
+}
+
+// UpdTplAlipssRequest 模板方式更新卡券
+type UpdTplAlipssRequest struct {
+	BaseRequest
+	SerialNumber           string
+	Status                 string
+	ChannelId              string
+	VerifyCode             string
+	VerifyType             string
+	TemplateParamValuePair map[string]string
 }

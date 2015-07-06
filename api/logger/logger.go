@@ -1,10 +1,8 @@
 package logger
 
 import (
-	// "bytes"
 	"fmt"
 	"github.com/z-ray/alipay/api/response"
-	// "os"
 	"runtime"
 	"time"
 )

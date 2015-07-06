@@ -51,7 +51,6 @@ resp, err := c.Execute(r)
 * github.com/z-ray/alipay/api/alipass 卡券平台类
 * github.com/z-ray/alipay/api/response 事件返回包装类，对应request
 * github.com/z-ray/alipay/api/utils 一些通用方法
-* github.com/z-ray/alipay/api/conver 解析map，映射到结构体
 
 ####TODO
 * 常量化事件消息json串，每种请求类型都有固定的消息体
