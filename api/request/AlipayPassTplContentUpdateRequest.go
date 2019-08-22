@@ -1,8 +1,8 @@
 package request
 
 import (
-	"github.com/CardInfoLink/angrycard/alipay/sdk/response"
-	"github.com/CardInfoLink/angrycard/alipay/sdk/utils"
+	"github.com/z-ray/alipay/api/response"
+	"github.com/z-ray/alipay/api/utils"
 )
 
 // AlipayPassSyncUpdateRequest
